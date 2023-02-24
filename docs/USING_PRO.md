@@ -15,7 +15,6 @@ marked.use({
   gfm: true,
   breaks: false,
   sanitize: false,
-  smartLists: true,
   smartypants: false,
   xhtml: false
 });
@@ -55,7 +54,7 @@ Before building your custom extensions, it is important to understand the compon
 4) The `parser` traverses the token tree and feeds each token into the appropriate `renderer`, and concatenates their outputs into the final HTML result.
 5) Each `renderer` receives a token and manipulates its contents to generate a segment of HTML.
 
-Marked provides methods of directly overriding the `renderer` and `tokenizer` for any existing token type, as well as inserting additional custom `renderer` and `tokenizer` functions to handle entirely custom syntax.
+Marked provides methods for directly overriding the `renderer` and `tokenizer` for any existing token type, as well as inserting additional custom `renderer` and `tokenizer` functions to handle entirely custom syntax.
 
 ***
 
@@ -437,6 +436,78 @@ console.log(marked.parse('A Description List:\n'
 ```
 
 ***
+
+<h2 id="async">Async Marked : <code>async</code></h2>
+
+Marked will return a promise if the `async` option is true. The `async` option will tell marked to await any `walkTokens` functions before parsing the tokens and returning an HTML string.
+
+Simple Example:
+
+```js
+const walkTokens = async (token) => {
+  if (token.type === 'link') {
+    try {
+      await fetch(token.href);
+    } catch (ex) {
+      token.title = 'invalid';
+    }
+  }
+};
+
+marked.use({ walkTokens, async: true });
+
+const markdown = `
+[valid link](https://example.com)
+
+[invalid link](https://invalidurl.com)
+`;
+
+const html = await marked.parse(markdown);
+```
+
+Custom Extension Example:
+
+```js
+const importUrl = {
+  extensions: [{
+    name: 'importUrl',
+    level: 'block',
+    start(src) { return src.indexOf('\n:'); },
+    tokenizer(src) {
+      const rule = /^:(https?:\/\/.+?):/;
+      const match = rule.exec(src);
+      if (match) {
+        return {
+          type: 'importUrl',
+          raw: match[0],
+          url: match[1],
+          html: '' // will be replaced in walkTokens
+        };
+      }
+    },
+    renderer(token) {
+      return token.html;
+    }
+  }],
+  async: true, // needed to tell marked to return a promise
+  async walkTokens(token) {
+    if (token.type === 'importUrl') {
+      const res = await fetch(token.url);
+      token.html = await res.text();
+    }
+  }
+};
+
+marked.use(importUrl);
+
+const markdown = `
+# example.com
+
+:https://example.com:
+`;
+
+const html = await marked.parse(markdown);
+```
 
 <h2 id="lexer">The Lexer</h2>
 

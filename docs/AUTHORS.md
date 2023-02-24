@@ -167,7 +167,7 @@ To be removed: You can remove yourself through the [GitHub UI](https://help.gith
 
 Committers are contributors who also have the responsibility, privilege, some might even say burden of being able to review and merge contributions (just usually not their own).
 
-A note on "decision making authority". This is related to submitting PRs and the [advice process](http://www.reinventingorganizationswiki.com/Decision_Making). The person marked as having decision making authority over a certain area should be sought for advice in that area before committing to a course of action.
+A note on "decision making authority". This is related to submitting PRs and the [advice process](https://reinventingorganizationswiki.com/en/theory/decision-making/). The person marked as having decision making authority over a certain area should be sought for advice in that area before committing to a course of action.
 
 **Should not exceed 5:** For larger PRs affecting more of the codebase and, most likely, review by more people, we try to keep this pool small and responsive and let those with decision making authority have final say without negative repercussions from the other committers.
 
@@ -200,6 +200,7 @@ Users are anyone using Marked in some fashion, without them, there's no reason f
 |Individual or Organization |Website                 |Project                              |Submitted by                                        |
 |:--------------------------|:-----------------------|:------------------------------------|:---------------------------------------------------|
 |MarkedJS                   |https://marked.js.org   |https://github.com/markedjs/marked   |The marked committers                               |
+|Altilunium                 |https://md.altilunium.my.id|https://github.com/altilunium/md  |Altilunium                                          |
 
 To be listed: All fields are optional. Contact any of the committers or, more timely, submit a pull request with the following (using the first row as an example):
 

@@ -358,19 +358,6 @@ a | b
         ]
       });
     });
-
-    it('after line break does not consume raw \n', () => {
-      expectTokens({
-        md: 'T\nh\n---',
-        tokens:
-          jasmine.arrayContaining([
-            jasmine.objectContaining({
-              raw: 'T\nh\n'
-            }),
-            { type: 'hr', raw: '---' }
-          ])
-      });
-    });
   });
 
   describe('blockquote', () => {
@@ -390,6 +377,48 @@ a | b
                 { type: 'text', raw: 'blockquote', text: 'blockquote' }
               ]
             }]
+          }
+        ]
+      });
+    });
+
+    it('paragraph token in list', () => {
+      expectTokens({
+        md: '- > blockquote',
+        tokens: [
+          {
+            type: 'list',
+            raw: '- > blockquote',
+            ordered: false,
+            start: '',
+            loose: false,
+            items: [
+              {
+                type: 'list_item',
+                raw: '- > blockquote',
+                task: false,
+                checked: undefined,
+                loose: false,
+                text: '> blockquote',
+                tokens: [
+                  {
+                    type: 'blockquote',
+                    raw: '> blockquote',
+                    tokens: [
+                      {
+                        type: 'paragraph',
+                        raw: 'blockquote',
+                        text: 'blockquote',
+                        tokens: [
+                          { type: 'text', raw: 'blockquote', text: 'blockquote' }
+                        ]
+                      }
+                    ],
+                    text: 'blockquote'
+                  }
+                ]
+              }
+            ]
           }
         ]
       });
@@ -618,10 +647,49 @@ paragraph
             loose: true,
             items: [
               jasmine.objectContaining({
-                raw: '- item 1\n\n'
+                raw: '- item 1\n\n',
+                loose: true
               }),
               jasmine.objectContaining({
-                raw: '- item 2'
+                raw: '- item 2',
+                loose: true
+              })
+            ]
+          })
+        ])
+      });
+    });
+
+    it('end loose', () => {
+      expectTokens({
+        md: `
+- item 1
+- item 2
+
+  item 2a
+- item 3
+`,
+        tokens: jasmine.arrayContaining([
+          jasmine.objectContaining({
+            type: 'space',
+            raw: '\n'
+          }),
+          jasmine.objectContaining({
+            type: 'list',
+            raw: '- item 1\n- item 2\n\n  item 2a\n- item 3\n',
+            loose: true,
+            items: [
+              jasmine.objectContaining({
+                raw: '- item 1\n',
+                loose: true
+              }),
+              jasmine.objectContaining({
+                raw: '- item 2\n\n  item 2a\n',
+                loose: true
+              }),
+              jasmine.objectContaining({
+                raw: '- item 3',
+                loose: true
               })
             ]
           })
@@ -647,6 +715,7 @@ paragraph
             items: [
               jasmine.objectContaining({
                 raw: '- item 1\n  - item 2',
+                loose: false,
                 tokens: jasmine.arrayContaining([
                   jasmine.objectContaining({
                     raw: 'item 1\n'
@@ -772,6 +841,41 @@ paragraph
           md: '\\>',
           tokens: [
             { type: 'escape', raw: '\\>', text: '&gt;' }
+          ]
+        });
+      });
+
+      it('escaped punctuation inside emphasis', () => {
+        expectInlineTokens({
+          md: '**strong text\\[**\\]',
+          tokens: [
+            {
+              type: 'strong',
+              raw: '**strong text\\[**',
+              text: 'strong text\\[',
+              tokens: [
+                { type: 'text', raw: 'strong text', text: 'strong text' },
+                { type: 'escape', raw: '\\[', text: '[' }
+              ]
+            },
+            { type: 'escape', raw: '\\]', text: ']' }
+          ]
+        });
+        expectInlineTokens({
+          md: '_em\\<pha\\>sis_',
+          tokens: [
+            {
+              type: 'em',
+              raw: '_em\\<pha\\>sis_',
+              text: 'em\\<pha\\>sis',
+              tokens: [
+                { type: 'text', raw: 'em', text: 'em' },
+                { type: 'escape', raw: '\\<', text: '&lt;' },
+                { type: 'text', raw: 'pha', text: 'pha' },
+                { type: 'escape', raw: '\\>', text: '&gt;' },
+                { type: 'text', raw: 'sis', text: 'sis' }
+              ]
+            }
           ]
         });
       });

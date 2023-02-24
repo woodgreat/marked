@@ -31,7 +31,6 @@ marked.setOptions({
   gfm: true,
   breaks: false,
   sanitize: false,
-  smartLists: true,
   smartypants: false,
   xhtml: false
 });
@@ -44,6 +43,7 @@ console.log(marked.parse(markdownString));
 
 |Member      |Type      |Default  |Since    |Notes         |
 |:-----------|:---------|:--------|:--------|:-------------|
+|async       |`boolean` |`false`  |4.1.0    |If true, `walkTokens` functions can be async and `marked.parse` will return a promise that resolves when all walk tokens functions resolve.|
 |baseUrl     |`string`  |`null`   |0.3.9    |A prefix url for any relative link. |
 |breaks      |`boolean` |`false`  |v0.2.7   |If true, add `<br>` on a single line break (copies GitHub behavior on comments, but not on rendered markdown files). Requires `gfm` be `true`.|
 |gfm         |`boolean` |`true`   |v0.2.1   |If true, use approved [GitHub Flavored Markdown (GFM) specification](https://github.github.com/gfm/).|
@@ -57,11 +57,28 @@ console.log(marked.parse(markdownString));
 |sanitize    |`boolean` |`false`  |v0.2.1   |If true, sanitize the HTML passed into `markdownString` with the `sanitizer` function.<br>**Warning**: This feature is deprecated and it should NOT be used as it cannot be considered secure.<br>Instead use a sanitize library, like [DOMPurify](https://github.com/cure53/DOMPurify) (recommended), [sanitize-html](https://github.com/apostrophecms/sanitize-html) or [insane](https://github.com/bevacqua/insane) on the output HTML! |
 |sanitizer   |`function`|`null`   |v0.3.4   |A function to sanitize the HTML passed into `markdownString`.|
 |silent      |`boolean` |`false`  |v0.2.7   |If true, the parser does not throw any exception.|
-|smartLists  |`boolean` |`false`  |v0.2.8   |If true, use smarter list behavior than those found in `markdown.pl`.|
 |smartypants |`boolean` |`false`  |v0.2.9   |If true, use "smart" typographic punctuation for things like quotes and dashes.|
 |tokenizer    |`object`  |`new Tokenizer()`|v1.0.0|An object containing functions to create tokens from markdown. See [extensibility](/using_pro) for more details.|
 |walkTokens   |`function`  |`null`|v1.1.0|A function which is called for every token. See [extensibility](/using_pro) for more details.|
 |xhtml       |`boolean` |`false`  |v0.3.2   |If true, emit self-closing HTML tags for void elements (&lt;br/&gt;, &lt;img/&gt;, etc.) with a "/" as required by XHTML.|
+
+<h2 id="extensions">Known Extensions</h2>
+
+Marked can be extended using [custom extensions](/using_pro#extensions). This is a list of extensions that can be used with `marked.use(extension)`.
+
+<!-- Keep this list ordered alphabetically by name -->
+
+|Name|Package Name|Description|
+|:---|:-----------|:----------|
+|[Admonition](https://www.npmjs.com/package/marked-admonition-extension)|[`marked-admonition-extension`](https://www.npmjs.com/package/marked-admonition-extension)| Admonition extension |
+|[Bidi](https://github.com/markedjs/marked-bidi)|[`marked-bidi`](https://www.npmjs.com/package/marked-bidi)|Add Bidirectional text support to the HTML|
+|[Custom Heading ID](https://github.com/markedjs/marked-custom-heading-id)|[`marked-custom-heading-id`](https://www.npmjs.com/package/marked-custom-heading-id)|Specify a custom heading id in headings with the [Markdown Extended Syntax](https://www.markdownguide.org/extended-syntax/#heading-ids) `# heading {#custom-id}`|
+|[Emoji](https://github.com/UziTech/marked-emoji)|[`marked-emoji`](https://www.npmjs.com/package/marked-emoji)|Add emoji support like on GitHub|
+|[Extended Tables](https://github.com/calculuschild/marked-extended-tables)|[`marked-extended-tables`](https://www.npmjs.com/package/marked-extended-tables)|Extends the standard Github-Flavored tables to support advanced features: Column Spanning, Row Spanning, Multi-row headers|
+|[GFM Heading ID](https://github.com/markedjs/marked-gfm-heading-id)|[`marked-gfm-heading-id`](https://www.npmjs.com/package/marked-gfm-heading-id)|Use [`github-slugger`](https://github.com/Flet/github-slugger) to create the heading IDs and allow a custom prefix.|
+|[Katex Code](https://github.com/UziTech/marked-katex-extension)|[`marked-katex-extension`](https://www.npmjs.com/package/marked-katex-extension)|Render [katex](https://katex.org/) code|
+|[LinkifyIt](https://github.com/UziTech/marked-linkify-it)|[`marked-linkify-it`](https://www.npmjs.com/package/marked-linkify-it)|Use [linkify-it](https://github.com/markdown-it/linkify-it) for urls|
+|[Misskey-flavored Markdown](https://akkoma.dev/sfr/marked-mfm)|[`marked-mfm`](https://www.npmjs.com/package/marked-mfm)|Custom extension for [Misskey-flavored Markdown](https://github.com/misskey-dev/mfm.js/blob/develop/docs/syntax.md).|
 
 <h2 id="inline">Inline Markdown</h2>
 
@@ -167,4 +184,24 @@ markedWorker.onmessage = (e) => {
 };
 
 markedWorker.postMessage(markdownString);
+```
+<h2 id="cli-extensions">CLI Extensions</h2>
+
+You can use extensions in the CLI by creating a new CLI that imports marked and the marked binary.
+
+```js
+// file: myMarked
+#!/usr/bin/node
+
+import { marked } from 'marked';
+import customHeadingId from 'marked-custom-heading-id';
+
+marked.use(customHeadingId());
+
+import 'marked/bin/marked';
+```
+
+```sh
+$ ./myMarked -s "# heading {#custom-id}"
+<h1 id="custom-id">heading</h1>
 ```

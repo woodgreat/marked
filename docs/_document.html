@@ -31,6 +31,7 @@
                             <li><a href="/#installation">Installation</a></li>
                             <li><a href="/#usage">Usage</a></li>
                             <li><a href="/#specifications">Specs</a></li>
+                            <li><a href="/#tools">Tools</a></li>
                             <li><a href="/#security">Security</a></li>
                         </ul>
                     </li>
@@ -38,9 +39,11 @@
                         <a href="/using_advanced">Advanced Usage</a>
                         <ul>
                             <li><a href="/using_advanced#options">Options</a></li>
+                            <li><a href="/using_advanced#extensions">Known Extensions</a></li>
                             <li><a href="/using_advanced#inline">Inline Markdown</a></li>
                             <li><a href="/using_advanced#highlight">Highlighting</a></li>
                             <li><a href="/using_advanced#workers">Workers</a></li>
+                            <li><a href="/using_advanced#cli-extensions">CLI Extensions</a></li>
                         </ul>
                     </li>
                     <li>
@@ -51,6 +54,7 @@
                             <li><a href="/using_pro#tokenizer">Tokenizer</a></li>
                             <li><a href="/using_pro#walk-tokens">Walk Tokens</a></li>
                             <li><a href="/using_pro#extensions">Custom Extensions</a></li>
+                            <li><a href="/using_pro#async">Async Marked</a></li>
                             <li><a href="/using_pro#lexer">Lexer</a></li>
                             <li><a href="/using_pro#parser">Parser</a></li>
                         </ul>
@@ -77,32 +81,6 @@
             <div id="content"><!--{{content}}--></div>
         </div>
     </div>
-    <script>
-        var match = new RegExp('#/(.+)\\.md(.*)', 'g').exec(window.location.hash);
-        if (match && match[1]) {
-            // Redirect from URL format to new URL, for example:
-            // Old: https://marked.js.org/#/USING_PRO.md#renderer
-            // New: https://marked.js.org/using_pro#renderer
-            var pageName = match[1].toLowerCase();
-            var sectionName = match[2];
-            window.location.href = '/' + pageName + sectionName;
-        }
-
-        var navLinks = document.querySelectorAll('nav a');
-
-        function hashChange() {
-            var fullUrl = window.location.href;
-            navLinks.forEach(function(link) {
-                link.className = link.href === fullUrl ? 'selected' : '';
-            });
-        }
-
-        window.addEventListener('hashchange', function (e) {
-            e.preventDefault();
-            hashChange();
-        });
-
-        hashChange();
-    </script>
+    <script src="/js/index.js"></script>
 </body>
 </html>

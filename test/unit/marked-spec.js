@@ -1,4 +1,4 @@
-import { marked, Renderer, Slugger, lexer, parseInline, use, getDefaults, walkTokens as _walkTokens } from '../../src/marked.js';
+import { marked, Renderer, Slugger, lexer, parseInline, use, getDefaults, walkTokens as _walkTokens, defaults, setOptions } from '../../src/marked.js';
 
 describe('Test heading ID functionality', () => {
   it('should add id attribute by default', () => {
@@ -433,11 +433,10 @@ describe('use extension', () => {
             const token = {
               type: 'walkableDescription',
               raw: match[0],
-              dt: [],
+              dt: this.lexer.inline(match[1].trim()),
               dd: [],
               tokens: []
             };
-            this.lexer.inline(match[1].trim(), token.dt);
             this.lexer.inline(match[2].trim(), token.dd);
             this.lexer.inline('unwalked', token.tokens);
             return token;
@@ -613,6 +612,41 @@ used extension2 walked</p>
 
       runTest();
     });
+
+    it('should merge extensions correctly', () => {
+      use(
+        {},
+        { tokenizer: {} },
+        { renderer: {} },
+        { walkTokens: () => {} },
+        { extensions: [] }
+      );
+
+      expect(() => marked('# test')).not.toThrow();
+    });
+  });
+
+  it('should be async if any extension in use args is async', () => {
+    use(
+      { async: true },
+      { async: false }
+    );
+
+    expect(defaults.async).toBeTrue();
+  });
+
+  it('should be async if any extension in use is async', () => {
+    use({ async: true });
+    use({ async: false });
+
+    expect(defaults.async).toBeTrue();
+  });
+
+  it('should reset async with setOptions', () => {
+    use({ async: true });
+    setOptions({ async: false });
+
+    expect(defaults.async).toBeFalse();
   });
 
   it('should allow deleting/editing tokens', () => {
@@ -1058,5 +1092,24 @@ br
       }
     });
     expect(marked('*text*').trim()).toBe('<p><em>text walked</em></p>');
+  });
+
+  it('should wait for async `walkTokens` function', async() => {
+    marked.use({
+      async: true,
+      async walkTokens(token) {
+        if (token.type === 'em') {
+          await new Promise((resolve) => {
+            setTimeout(resolve, 100);
+          });
+          token.text += ' walked';
+          token.tokens = this.Lexer.lexInline(token.text);
+        }
+      }
+    });
+    const promise = marked('*text*');
+    expect(promise).toBeInstanceOf(Promise);
+    const html = await promise;
+    expect(html.trim()).toBe('<p><em>text walked</em></p>');
   });
 });
