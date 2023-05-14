@@ -142,23 +142,6 @@ export function resolveUrl(base, href) {
 
 export const noopTest = { exec: function noopTest() {} };
 
-export function merge(obj) {
-  let i = 1,
-    target,
-    key;
-
-  for (; i < arguments.length; i++) {
-    target = arguments[i];
-    for (key in target) {
-      if (Object.prototype.hasOwnProperty.call(target, key)) {
-        obj[key] = target[key];
-      }
-    }
-  }
-
-  return obj;
-}
-
 export function splitCells(tableRow, count) {
   // ensure that every cell-delimiting pipe has a space
   // before it to distinguish it from an escaped pipe
@@ -249,9 +232,41 @@ export function findClosingBracket(str, b) {
   return -1;
 }
 
-export function checkSanitizeDeprecation(opt) {
-  if (opt && opt.sanitize && !opt.silent) {
+export function checkDeprecations(opt, callback) {
+  if (!opt || opt.silent) {
+    return;
+  }
+
+  if (callback) {
+    console.warn('marked(): callback is deprecated since version 5.0.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/using_pro#async');
+  }
+
+  if (opt.sanitize || opt.sanitizer) {
     console.warn('marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options');
+  }
+
+  if (opt.highlight || opt.langPrefix !== 'language-') {
+    console.warn('marked(): highlight and langPrefix parameters are deprecated since version 5.0.0, should not be used and will be removed in the future. Instead use https://www.npmjs.com/package/marked-highlight.');
+  }
+
+  if (opt.mangle) {
+    console.warn('marked(): mangle parameter is enabled by default, but is deprecated since version 5.0.0, and will be removed in the future. To clear this warning, install https://www.npmjs.com/package/marked-mangle, or disable by setting `{mangle: false}`.');
+  }
+
+  if (opt.baseUrl) {
+    console.warn('marked(): baseUrl parameter is deprecated since version 5.0.0, should not be used and will be removed in the future. Instead use https://www.npmjs.com/package/marked-base-url.');
+  }
+
+  if (opt.smartypants) {
+    console.warn('marked(): smartypants parameter is deprecated since version 5.0.0, should not be used and will be removed in the future. Instead use https://www.npmjs.com/package/marked-smartypants.');
+  }
+
+  if (opt.xhtml) {
+    console.warn('marked(): xhtml parameter is deprecated since version 5.0.0, should not be used and will be removed in the future. Instead use https://www.npmjs.com/package/marked-xhtml.');
+  }
+
+  if (opt.headerIds || opt.headerPrefix) {
+    console.warn('marked(): headerIds and headerPrefix parameters enabled by default, but are deprecated since version 5.0.0, and will be removed in the future. To clear this warning, install  https://www.npmjs.com/package/marked-gfm-heading-id, or disable by setting `{headerIds: false}`.');
   }
 }
 
